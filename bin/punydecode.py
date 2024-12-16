@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import sys
 import os
 
@@ -8,6 +6,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 import idna
 
+__version__ = "1.0.2"
+
 @Configuration()
 class PunyDecode(StreamingCommand):
     """ 
@@ -15,6 +15,8 @@ class PunyDecode(StreamingCommand):
 
     """
     def stream(self, events):
+        debug = False 
+        
         if len(sys.argv) < 2:
             print('No field found to decode')
         else:
@@ -36,10 +38,19 @@ class PunyDecode(StreamingCommand):
                         else:
                             punydecode = idna.decode(event[arg])
                     except:
-                        punydecode = event[arg]
+                        try:
+                            punydecode = str.encode(event[arg]).decode('idna')
+                            error = "The field contains a invalid domain."
+                        except Exception as e:
+                            punydecode = event[arg]
+                            error = e
 
                     field_name = arg + "_decoded"
                     event[field_name] = punydecode
+
+                    if debug and error:
+                        error_field = arg + "_error"
+                        event[error_field] = error
 
                 yield event
 
