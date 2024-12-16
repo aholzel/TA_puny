@@ -1,0 +1,12 @@
+[commands/punydecode]
+access = read : [ * ], write : [ admin ]
+export = system
+version = 2.0.0
+
+[commands/punyencode]
+access = read : [ * ], write : [ admin ]
+export = system
+version = 2.0.0
+
+[searchbnf]
+export=system
